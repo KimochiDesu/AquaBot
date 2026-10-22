@@ -24,7 +24,10 @@ const MAX_FIELD_LENGTH = 60;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 3;
 
-const DEFAULT_ORIGINS = 'https://kimochidesu.github.io,http://localhost:5173,http://127.0.0.1:5173';
+// The Axis Cult emblem, served by the portfolio site.
+const FORM_THUMBNAIL = process.env.FORM_THUMBNAIL || 'https://www.k1mochi.cloud/img/axisform/emblem.png';
+
+const DEFAULT_ORIGINS ='https://kimochidesu.github.io,http://localhost:5173,http://127.0.0.1:5173';
 
 const DEFAULT_LEDGER = path.join(__dirname, '../../data/axisForms.json');
 
@@ -128,7 +131,8 @@ async function postForm(channel, { fields, image, ext }) {
       value: fields[key] ? escapeMarkdown(fields[key]) : '—',
       inline: key !== 'contact',
     })))
-    .setImage(`attachment://${fileName}`);
+    .setImage(`attachment://${fileName}`)
+    .setThumbnail(FORM_THUMBNAIL);
   await channel.send({
     embeds: [embed],
     files: [new AttachmentBuilder(image, { name: fileName })],

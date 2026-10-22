@@ -1,16 +1,23 @@
 const { EmbedBuilder } = require('discord.js');
 
 const AQUA_BLUE = 0x00BFFF;
-const AQUA_THUMBNAIL = 'https://i.imgur.com/6XQOIBF.png';
+
+// The bot's own avatar, set once it logs in (see events/ready.js). The old imgur thumbnail was deleted.
+let aquaThumbnail = null;
+
+function setAquaThumbnail(url) {
+  aquaThumbnail = url;
+}
 
 function aquaEmbed(title, description) {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(AQUA_BLUE)
     .setTitle(title)
     .setDescription(description)
-    .setThumbnail(AQUA_THUMBNAIL)
     .setFooter({ text: 'AquaBot — Blessed by the Goddess Aqua' })
     .setTimestamp();
+  if (aquaThumbnail) embed.setThumbnail(aquaThumbnail);
+  return embed;
 }
 
 function successEmbed(title, description) {
@@ -47,4 +54,4 @@ function modEmbed(action, target, moderator, reason, extra = {}) {
   return embed;
 }
 
-module.exports = { aquaEmbed, successEmbed, errorEmbed, modEmbed, AQUA_BLUE };
+module.exports = { aquaEmbed, successEmbed, errorEmbed, modEmbed, setAquaThumbnail, AQUA_BLUE };
