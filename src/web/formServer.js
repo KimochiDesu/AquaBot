@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 const { AttachmentBuilder, ChannelType, escapeMarkdown } = require('discord.js');
 const { aquaEmbed } = require('../utils/embed');
+const { getFormsChannel } = require('../utils/database');
 
 // Receives Axis Cult membership forms from the portfolio site and posts them to #forms.
 // The site sends JSON: { fields: { name, gender, age, contact, profession, recruited }, device, image: "data:image/jpeg;base64,..." }
@@ -67,14 +68,22 @@ function allowedOrigins() {
   return (process.env.FORM_ORIGINS || DEFAULT_ORIGINS).split(',').map(s => s.trim()).filter(Boolean);
 }
 
-/** #forms: FORMS_CHANNEL_ID if set, otherwise a text channel named "forms" (in GUILD_ID when set). */
+/**
+ * Where forms go, in order: the channel an admin chose with /formschannel, FORMS_CHANNEL_ID,
+ * then a text channel named "forms". Only GUILD_ID's server is used when that is set.
+ */
 async function findFormsChannel(client) {
-  if (process.env.FORMS_CHANNEL_ID) {
-    return client.channels.fetch(process.env.FORMS_CHANNEL_ID).catch(() => null);
-  }
   const guilds = process.env.GUILD_ID
     ? [client.guilds.cache.get(process.env.GUILD_ID)].filter(Boolean)
     : [...client.guilds.cache.values()];
+  for (const guild of guilds) {
+    const chosen = getFormsChannel(guild.id);
+    const channel = chosen && await client.channels.fetch(chosen).catch(() => null);
+    if (channel) return channel;
+  }
+  if (process.env.FORMS_CHANNEL_ID) {
+    return client.channels.fetch(process.env.FORMS_CHANNEL_ID).catch(() => null);
+  }
   for (const guild of guilds) {
     const channel = guild.channels.cache.find(c => c.type === ChannelType.GuildText && c.name === 'forms');
     if (channel) return channel;
@@ -225,4 +234,4 @@ function startFormServer(client) {
   return server;
 }
 
-module.exports = { startFormServer, createFormServer, parseForm };
+module.exports = { startFormServer, createFormServer, parseForm, findFormsChannel };

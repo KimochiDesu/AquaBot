@@ -4,6 +4,7 @@ const path = require('path');
 const WARNINGS_PATH = path.join(__dirname, '../../data/warnings.json');
 const REACTION_ROLES_PATH = path.join(__dirname, '../../data/reactionRoles.json');
 const ECONOMY_PATH = path.join(__dirname, '../../data/economy.json');
+const SETTINGS_PATH = path.join(__dirname, '../../data/settings.json');
 
 function readJSON(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -102,8 +103,23 @@ function claimDaily(userId) {
   return { success: true, reward: DAILY_REWARD, total: record.gold };
 }
 
+// Per-server settings
+/** The channel Axis Cult forms are posted to, as set with /formschannel (null when not set). */
+function getFormsChannel(guildId) {
+  return readJSON(SETTINGS_PATH)[guildId]?.formsChannelId || null;
+}
+
+function setFormsChannel(guildId, channelId) {
+  const data = readJSON(SETTINGS_PATH);
+  if (!data[guildId]) data[guildId] = {};
+  if (channelId) data[guildId].formsChannelId = channelId;
+  else delete data[guildId].formsChannelId;
+  writeJSON(SETTINGS_PATH, data);
+}
+
 module.exports = {
   addWarning, getWarnings, clearWarnings,
   setReactionRole, getReactionRole, removeReactionRole,
   getGold, addGold, claimDaily, DAILY_REWARD,
+  getFormsChannel, setFormsChannel,
 };

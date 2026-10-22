@@ -18,8 +18,12 @@ so it is reached from the internet through a tunnel (below), not an open port. I
 
 ### Setup
 
-1. Create a text channel named `forms`. Give AquaBot **View Channel, Send Messages, Embed Links
-   and Attach Files** there. (Or set `FORMS_CHANNEL_ID` to use a channel with another name.)
+1. Pick the channel for forms. Give AquaBot **View Channel, Send Messages, Embed Links and Attach
+   Files** there. Forms go to, in order:
+   - the channel an admin chose with **`/formschannel set #channel`** (needs Manage Server;
+     `/formschannel show` and `/formschannel reset` too). It is saved in `data/settings.json`;
+   - `FORMS_CHANNEL_ID` from `.env`;
+   - a text channel named `forms`.
 2. Add to `.env` (see `.env.example`):
 
    ```sh
@@ -28,7 +32,8 @@ so it is reached from the internet through a tunnel (below), not an open port. I
    FORM_SALT=any-random-text
    ```
 
-3. `git pull` and restart the bot. The log shows
+3. `git pull`, run `npm run deploy` once so Discord learns the new `/formschannel` command, and
+   restart the bot. The log shows
    `Axis form receiver listening on http://127.0.0.1:8787/axis-form`.
    Check it with `curl http://127.0.0.1:8787/health`.
 4. Give it a public HTTPS address with a tunnel. Either works without opening router ports:
